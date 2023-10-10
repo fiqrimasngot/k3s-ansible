@@ -46,6 +46,19 @@ First create a new directory based on the `sample` directory within the `invento
 cp -R inventory/sample inventory/my-cluster
 ```
 
+do confirm the following config were consistent
+```
+ansible_user: ubuntu
+systemd_dir: /etc/systemd/system
+
+# Set your timezone
+system_timezone: "Asia/Kuala_Lumpur"
+
+# interface which will be used for flannel
+flannel_iface: "eth0"
+
+```
+
 Second, edit `inventory/my-cluster/hosts.ini` to match the system information gathered above
 
 For example:
@@ -63,6 +76,15 @@ For example:
 [k3s_cluster:children]
 master
 node
+```
+
+setup all into master since only 3 node are available
+
+```
+[master]
+10.32.1.41
+10.32.1.42
+10.32.1.43
 ```
 
 If multiple hosts are in the master group, the playbook will automatically set up k3s in [HA mode with etcd](https://rancher.com/docs/k3s/latest/en/installation/ha-embedded/).
@@ -97,6 +119,14 @@ To copy your `kube config` locally so that you can access your **Kubernetes** cl
 
 ```bash
 scp debian@master_ip:~/.kube/config ~/.kube/config
+```
+
+Port forward in PFSENSE
+Firewall > NAT > Port Forward
+```
+			Interface	Protocol	Source Address	Source Ports	Dest. Address	Dest. Ports	NAT IP	NAT Ports	Description	Actions
+			WAN	TCP	*	*	WAN address	80 (HTTP)	kube	80 (HTTP)		  
+			WAN	TCP	*	*	WAN address	443 (HTTPS)	kube	443 (HTTPS)		  
 ```
 
 ### 🔨 Testing your cluster
